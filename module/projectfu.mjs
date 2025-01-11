@@ -66,6 +66,7 @@ import { StudyRollHandler } from './helpers/study-roll.mjs';
 import { ItemCustomizer } from './helpers/item-customizer.mjs';
 import { FUHooks } from './hooks.mjs';
 import { DamagePipeline } from './pipelines/damage-pipeline.mjs';
+import { InlineWeapon } from './helpers/inline-weapon.mjs';
 
 globalThis.projectfu = {
 	ClassFeatureDataModel,
@@ -254,6 +255,13 @@ Hooks.once('init', async () => {
 	Hooks.on('renderApplication', InlineChecks.activateListeners);
 	Hooks.on('renderActorSheet', InlineChecks.activateListeners);
 	Hooks.on('renderItemSheet', InlineChecks.activateListeners);
+
+	CONFIG.TextEditor.enrichers.push(InlineWeapon.enricher);
+	Hooks.on('renderChatMessage', InlineWeapon.activateListeners);
+	Hooks.on('renderApplication', InlineWeapon.activateListeners);
+	Hooks.on('renderActorSheet', InlineWeapon.activateListeners);
+	Hooks.on('renderItemSheet', InlineWeapon.activateListeners);
+	Hooks.on('dropActorSheetData', InlineWeapon.onDropActor);
 
 	CONFIG.TextEditor.enrichers.push(InlineIcon.enricher);
 

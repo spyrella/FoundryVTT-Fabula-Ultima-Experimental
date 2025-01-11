@@ -1,5 +1,5 @@
 import { OptionalFeatureDataModel } from './optional-feature-data-model.mjs';
-import { onManageActiveEffect, prepareActiveEffectCategories } from '../../../helpers/effects.mjs';
+import { onManageActiveEffect, prepareActiveEffectCategories } from '../../effects/effects.mjs';
 
 export class FUOptionalFeatureSheet extends ItemSheet {
 	// Initialize drag counter

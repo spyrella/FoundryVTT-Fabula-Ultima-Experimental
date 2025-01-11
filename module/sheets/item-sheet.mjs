@@ -1,4 +1,4 @@
-import { onManageActiveEffect, prepareActiveEffectCategories } from '../helpers/effects.mjs';
+import { onManageActiveEffect, prepareActiveEffectCategories } from '../documents/effects/effects.mjs';
 import { ChecksV2 } from '../checks/checks-v2.mjs';
 import { FU } from '../helpers/config.mjs';
 

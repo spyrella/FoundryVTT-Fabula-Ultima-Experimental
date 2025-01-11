@@ -1,5 +1,5 @@
 import { ClassFeatureDataModel } from './class-feature-data-model.mjs';
-import { onManageActiveEffect, prepareActiveEffectCategories } from '../../../helpers/effects.mjs';
+import { onManageActiveEffect, prepareActiveEffectCategories } from '../../effects/effects.mjs';
 import { FU } from '../../../helpers/config.mjs';
 
 export class FUClassFeatureSheet extends ItemSheet {

@@ -5126,6 +5126,21 @@
   background-image: url("/icons/svg/aura.svg");
 }
 
+.fu-weapon-enchant {
+    background-image: url("/systems/projectfu/styles/static/icons/fus-weapon-enchant.svg");
+}
+
+/* Icon in inline element */
+.fui {
+    width: 16px;
+    height: 16px;
+    background-size: cover;
+    font-style: normal;
+    -webkit-text-stroke: 0.05rem black;
+    display: inline-block;
+    margin-right: 4px;
+}
+
 .fua {
   width: 24px;
   height: 24px;
@@ -5907,7 +5922,7 @@ a.inline-roll i {
 .inline.broken .fas {
   margin-right: 0.125rem;
 }
-.inline.inline-check, .inline.inline-damage, .inline.inline-recovery, .inline.inline-loss, .inline.inline-effect {
+.inline.inline-check, .inline.inline-damage, .inline.inline-recovery, .inline.inline-loss, .inline.inline-effect, .inline.inline-weapon {
   background: #3d665a;
   border: 0.063rem solid #f5f5dc;
   border-radius: 0.5rem;

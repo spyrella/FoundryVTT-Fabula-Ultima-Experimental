@@ -96,6 +96,7 @@ FU.allIcon = {
 	ice: 'fua fu-ice',
 	light: 'fua fu-light',
 	poison: 'fua fu-poison',
+	weaponEnchant: 'fu-weapon-enchant',
 };
 
 FU.affType = {

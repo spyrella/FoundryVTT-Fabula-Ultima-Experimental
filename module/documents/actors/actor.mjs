@@ -1,6 +1,6 @@
 import { FUItem } from '../items/item.mjs';
 import { FUHooks } from '../../hooks.mjs';
-import { toggleStatusEffect } from '../../helpers/effects.mjs';
+import { toggleStatusEffect } from '../effects/effects.mjs';
 import { SYSTEM } from '../../helpers/config.mjs';
 import { Flags } from '../../helpers/flags.mjs';
 

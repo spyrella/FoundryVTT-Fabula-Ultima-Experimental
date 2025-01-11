@@ -1,6 +1,6 @@
 import { createChatMessage, promptCheck, promptOpenCheck } from './checks.mjs';
 import { StudyRollHandler } from './study-roll.mjs';
-import { toggleStatusEffect } from './effects.mjs';
+import { toggleStatusEffect } from '../documents/effects/effects.mjs';
 import { SYSTEM } from './config.mjs';
 import { SETTINGS } from '../settings.js';
 

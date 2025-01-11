@@ -26,6 +26,19 @@ export class InlineSourceInfo {
 		}
 		return null;
 	}
+
+	/**
+	 * @returns {FUActor|FUItem}
+	 */
+	resolve() {
+		if (this.actorUuid) {
+			return fromUuidSync(this.actorUuid);
+		}
+		if (this.itemUuid) {
+			return fromUuidSync(this.itemUuid);
+		}
+		return null;
+	}
 }
 
 /**
@@ -106,8 +119,37 @@ function appendVariableToAnchor(anchor, key, expression, localization = 'FU.Vari
 	}
 }
 
+function toBase64(value) {
+	try {
+		const string = JSON.stringify(value);
+		const bytes = new TextEncoder().encode(string);
+		const binString = Array.from(bytes, (byte) => String.fromCodePoint(byte)).join('');
+		return btoa(binString);
+	} catch (e) {
+		return null;
+	}
+}
+
+function fromBase64(base64) {
+	try {
+		const binString = atob(base64);
+		const uint8Array = Uint8Array.from(binString, (m) => m.codePointAt(0));
+		const decodedValue = new TextDecoder().decode(uint8Array);
+		return JSON.parse(decodedValue);
+	} catch (e) {
+		return null;
+	}
+}
+
+function capitalize(word) {
+	return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+}
+
 export const InlineHelper = {
 	determineSource,
 	appendAmountToAnchor,
 	appendVariableToAnchor,
+	toBase64,
+	fromBase64,
+	capitalize,
 };

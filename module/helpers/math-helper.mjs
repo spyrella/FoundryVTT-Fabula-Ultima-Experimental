@@ -9,7 +9,11 @@ function clamp(value, min, max) {
  * @author Uses Foundry's API
  */
 function evaluate(expression) {
-	return Roll.safeEval(expression);
+	try {
+		return Roll.safeEval(expression);
+	} catch (e) {
+		return expression;
+	}
 }
 
 export const MathHelper = Object.freeze({
