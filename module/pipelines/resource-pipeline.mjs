@@ -1,4 +1,4 @@
-import { PipelineRequest } from './pipeline.mjs';
+import { Pipeline, PipelineRequest } from './pipeline.mjs';
 import { FU, SYSTEM } from '../helpers/config.mjs';
 import { getSelected, getTargeted } from '../helpers/target-handler.mjs';
 import { InlineSourceInfo } from '../helpers/inline-helper.mjs';
@@ -248,31 +248,14 @@ function onRenderChatMessage(document, jQuery) {
 		return ResourcePipeline.processLoss(request);
 	};
 
-	// TODO: Refactor to function for damage pipeline
-	const handleClick = async (event, dataset, getTargetsFunction, defaultAction, alternateAction = null) => {
-		event.preventDefault();
-		if (!dataset.disabled) {
-			const targets = getTargetsFunction ? await getTargetsFunction(event) : [];
-			if (event.ctrlKey || event.metaKey) {
-				if (alternateAction) {
-					await alternateAction(event, dataset, targets);
-				}
-				dataset.disabled = false;
-			} else {
-				await defaultAction(event, dataset, targets);
-				dataset.disabled = false;
-			}
-		}
-	};
-
 	jQuery.find(`a[data-action=applyTargetedResourceLoss]`).click(function (event) {
-		return handleClick(event, this.dataset, getTargeted, applyResourceLoss);
+		return Pipeline.handleClick(event, this.dataset, getTargeted, applyResourceLoss);
 	});
 	jQuery.find(`a[data-action=applySelectedResourceLoss]`).click(function (event) {
-		return handleClick(event, this.dataset, getSelected, applyResourceLoss);
+		return Pipeline.handleClick(event, this.dataset, getSelected, applyResourceLoss);
 	});
 	jQuery.find(`a[data-action=applyResourceLoss]`).click(function (event) {
-		return handleClick(event, this.dataset, null, applyResourceLoss);
+		return Pipeline.handleClick(event, this.dataset, null, applyResourceLoss);
 	});
 }
 

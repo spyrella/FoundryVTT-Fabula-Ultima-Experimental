@@ -69,7 +69,31 @@ function getSingleTarget(event) {
 	return [actor];
 }
 
+/**
+ * @param {Event} event
+ * @param {Object} dataset
+ * @param {Function<FUActor[]>} getTargetsFunction
+ * @param {Function<Event, Object, FUActor[], Promise>} defaultAction
+ * @param {Function<Event, Object, FUActor[], Promise>} alternateAction
+ */
+async function handleClick(event, dataset, getTargetsFunction, defaultAction, alternateAction = null) {
+	event.preventDefault();
+	if (!dataset.disabled) {
+		const targets = getTargetsFunction ? await getTargetsFunction(event) : [];
+		if (event.ctrlKey || event.metaKey) {
+			if (alternateAction) {
+				await alternateAction(event, dataset, targets);
+			}
+			dataset.disabled = false;
+		} else {
+			await defaultAction(event, dataset, targets);
+			dataset.disabled = false;
+		}
+	}
+}
+
 export const Pipeline = {
 	getSingleTarget,
 	process,
+	handleClick,
 };
