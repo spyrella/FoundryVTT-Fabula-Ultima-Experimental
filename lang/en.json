@@ -860,6 +860,7 @@
 		"ChatApplyResourceLossSelected": "Spend Selected",
 		"ChatApplyResourceLossTargeted": "Spend Targeted",
 		"ChatRevertDamage": "Revert applied damage",
+		"ChatRevertResourceLoss": "Revert resource loss",
 		"ChatEvaluateAmountNoActor": "No reference to an actor provided",
 		"ChatEvaluateAmountNoItem": "No reference to an item provided",
 		"ChatEvaluateNoSkill": "The referenced skill was not found in the actor",
