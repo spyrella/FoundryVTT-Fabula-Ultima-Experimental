@@ -11,6 +11,8 @@ import { CheckConfiguration } from '../../../checks/check-configuration.mjs';
 import { AccuracyCheck } from '../../../checks/accuracy-check.mjs';
 import { SETTINGS } from '../../../settings.js';
 import { CHECK_DETAILS, CHECK_FLAVOR } from '../../../checks/default-section-order.mjs';
+import { ActionCostDataModel } from '../common/action-cost-data-model.mjs';
+import { ResourcePipeline } from '../../../pipelines/resource-pipeline.mjs';
 
 const weaponUsedBySkill = 'weaponUsedBySkill';
 const skillForAttributeCheck = 'skillForAttributeCheck';
@@ -85,28 +87,29 @@ Hooks.on(CheckHooks.prepareCheck, onPrepareAttributeCheck);
 /**
  * @type RenderCheckHook
  */
-let onRenderAccuracyCheck = (sections, check, actor, item) => {
-	if (check.type === 'accuracy' && item?.system instanceof SkillDataModel) {
-		if (check.additionalData[weaponUsedBySkill]) {
-			const weapon = fromUuidSync(check.additionalData[weaponUsedBySkill]);
-			/** @type WeaponDataModel */
-			const weaponData = weapon.system;
-			sections.push({
-				partial: 'systems/projectfu/templates/chat/partials/chat-weapon-details.hbs',
-				data: {
-					weapon: {
-						category: weaponData.category.value,
-						hands: weaponData.hands.value,
-						type: weaponData.type.value,
-						summary: item.system.summary.value,
-						description: item.system.description,
+let onRenderAccuracyCheck = (sections, check, actor, item, flags) => {
+	if (item?.system instanceof SkillDataModel) {
+		if (check.type === 'accuracy') {
+			if (check.additionalData[weaponUsedBySkill]) {
+				const weapon = fromUuidSync(check.additionalData[weaponUsedBySkill]);
+				/** @type WeaponDataModel */
+				const weaponData = weapon.system;
+				sections.push({
+					partial: 'systems/projectfu/templates/chat/partials/chat-weapon-details.hbs',
+					data: {
+						weapon: {
+							category: weaponData.category.value,
+							hands: weaponData.hands.value,
+							type: weaponData.type.value,
+							summary: item.system.summary.value,
+							description: item.system.description,
+						},
+						collapseDescriptions: game.settings.get(SYSTEM, SETTINGS.collapseDescriptions),
 					},
-					collapseDescriptions: game.settings.get(SYSTEM, SETTINGS.collapseDescriptions),
-				},
-				order: CHECK_DETAILS,
-			});
-			sections.push({
-				content: `
+					order: CHECK_DETAILS,
+				});
+				sections.push({
+					content: `
                   <div class='detail-desc flexrow flex-group-center desc' style='padding: 4px;'>
                     <div>
                       <span>
@@ -116,9 +119,11 @@ let onRenderAccuracyCheck = (sections, check, actor, item) => {
                     </div>
                   </div>
                   `,
-				order: CHECK_DETAILS - 1,
-			});
+					order: CHECK_DETAILS - 1,
+				});
+			}
 		}
+		ResourcePipeline.addSpendResourceChatMessageSection(sections, actor, item, flags);
 	}
 };
 Hooks.on(CheckHooks.renderCheck, onRenderAccuracyCheck);
@@ -195,6 +200,7 @@ Hooks.on(CheckHooks.renderCheck, onRenderDisplay);
  * @property {number} rollInfo.accuracy.value
  * @property {DamageDataModel} rollInfo.damage
  * @property {boolean} hasRoll.value
+ * @property {ActionCostDataModel} cost
  */
 export class SkillDataModel extends foundry.abstract.TypeDataModel {
 	static defineSchema() {
@@ -238,6 +244,7 @@ export class SkillDataModel extends foundry.abstract.TypeDataModel {
 				damage: new EmbeddedDataField(DamageDataModel, {}),
 			}),
 			hasRoll: new SchemaField({ value: new BooleanField() }),
+			cost: new EmbeddedDataField(ActionCostDataModel, {}),
 		};
 	}
 

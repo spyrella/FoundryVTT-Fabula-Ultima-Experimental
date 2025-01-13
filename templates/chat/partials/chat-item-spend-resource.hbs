@@ -1,0 +1,15 @@
+<div class="fu-tags flexrow gap-5">
+    {{#if hasTargets}}
+        <a data-action="applySelectedResourceLoss" data-name="{{name}}" data-actor="{{actor}}" data-item="{{item}}" >
+            <span class='fu-tag button flex-group-center gap-5' style="width: 100%;white-space: nowrap;">{{localize "FU.ChatApplyResourceLossSelected"}}<i class="icon {{icon}}"></i></span>
+        </a>
+        <a data-action="applyTargetedResourceLoss" data-name="{{name}}" data-actor="{{actor}}" data-item="{{item}}">
+            <span class='fu-tag button flex-group-center gap-5' style="width: 100%;white-space: nowrap;">{{localize "FU.ChatApplyResourceLossTargeted"}}<i class="icon {{icon}}"></i></span>
+        </a>
+    {{else}}
+        <a data-action="applyResourceLoss" data-name="{{name}}" data-actor="{{actor}}" data-item="{{item}}">
+            <span class='fu-tag button flex-group-center gap-5' style="width: 100%;white-space: nowrap;">{{localize "FU.ChatApplyResourceLoss"}}<i class="icon {{icon}}"></i></span>
+        </a>
+    {{/if}}
+
+</div>
