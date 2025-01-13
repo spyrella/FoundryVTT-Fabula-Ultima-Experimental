@@ -8,6 +8,7 @@ import { CheckHooks } from '../../../checks/check-hooks.mjs';
 import { CHECK_DETAILS } from '../../../checks/default-section-order.mjs';
 import { ChecksV2 } from '../../../checks/checks-v2.mjs';
 import { CheckConfiguration } from '../../../checks/check-configuration.mjs';
+import { ResourcePipeline } from '../../../pipelines/resource-pipeline.mjs';
 
 /**
  * @param {CheckV2} check
@@ -43,8 +44,9 @@ Hooks.on(CheckHooks.prepareCheck, prepareCheck);
  * @param {CheckResultV2} result
  * @param {FUActor} actor
  * @param {FUItem} [item]
+ * @param flags
  */
-function onRenderCheck(data, result, actor, item) {
+function onRenderCheck(data, result, actor, item, flags) {
 	if (item && item.system instanceof SpellDataModel) {
 		data.push(async () => ({
 			order: CHECK_DETAILS,
@@ -60,6 +62,8 @@ function onRenderCheck(data, result, actor, item) {
 				},
 			},
 		}));
+
+		ResourcePipeline.addSpendResourceChatMessageSection(data, actor, item, flags);
 	}
 }
 
@@ -85,6 +89,7 @@ Hooks.on(CheckHooks.renderCheck, onRenderCheck);
  * @property {boolean} isOffensive.value
  * @property {string} opportunity
  * @property {string} source.value
+ * @property {Number} maxTargets.value
  * @property {boolean} rollInfo.useWeapon.hrZero.value
  * @property {ItemAttributesDataModel} rollInfo.attributes
  * @property {number} rollInfo.accuracy.value

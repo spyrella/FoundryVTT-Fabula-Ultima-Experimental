@@ -67,6 +67,7 @@ import { ItemCustomizer } from './helpers/item-customizer.mjs';
 import { FUHooks } from './hooks.mjs';
 import { DamagePipeline } from './pipelines/damage-pipeline.mjs';
 import { InlineWeapon } from './helpers/inline-weapon.mjs';
+import { ResourcePipeline } from './pipelines/resource-pipeline.mjs';
 
 globalThis.projectfu = {
 	ClassFeatureDataModel,
@@ -230,6 +231,7 @@ Hooks.once('init', async () => {
 
 	Hooks.on('getChatLogEntryContext', addRollContextMenuEntries);
 	Hooks.on('renderChatMessage', DamagePipeline.onRenderChatMessage);
+	Hooks.on(`renderChatMessage`, ResourcePipeline.onRenderChatMessage);
 
 	registerClassFeatures(CONFIG.FU.classFeatureRegistry);
 	registerOptionalFeatures(CONFIG.FU.optionalFeatureRegistry);

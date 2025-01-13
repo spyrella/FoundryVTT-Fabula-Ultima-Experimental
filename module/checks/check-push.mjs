@@ -77,7 +77,7 @@ const getPushParams = async (actor) => {
 	});
 
 	if (push === false) {
-		ui.notifications.error('FU.DialogPushMissingBond', { localize: true });
+		ui.notifications.warn('FU.ChatEvaluateAmountNoActor', { localize: true });
 		return;
 	}
 

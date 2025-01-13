@@ -310,7 +310,7 @@ async function process(request) {
 
 // TODO: Move elsewhere
 /**
- * @param {?} message
+ * @param {Document} message
  * @param {jQuery} jQuery
  */
 function onRenderChatMessage(message, jQuery) {
@@ -342,33 +342,42 @@ function onRenderChatMessage(message, jQuery) {
 		}
 	}
 
-	const handleClick = async (event, getTargetsFunction) => {
+	const customizeDamage = async (event, targets) => {
+		DamageCustomizer(
+			baseDamageInfo,
+			targets,
+			(extraDamageInfo) => {
+				handleDamageApplication(event, targets, sourceUuid, sourceName, baseDamageInfo, extraDamageInfo);
+				disabled = false;
+			},
+			() => {
+				disabled = false;
+			},
+		);
+	};
+
+	const applyDefaultDamage = async (event, targets) => {
+		handleDamageApplication(event, targets, sourceUuid, sourceName, baseDamageInfo, {});
+	};
+
+	const handleClick = async (event, getTargetsFunction, action, alternateAction) => {
 		event.preventDefault();
 		if (!disabled) {
 			disabled = true;
 			const targets = await getTargetsFunction(event);
 			if (event.ctrlKey || event.metaKey) {
-				DamageCustomizer(
-					baseDamageInfo,
-					targets,
-					(extraDamageInfo) => {
-						handleDamageApplication(event, targets, sourceUuid, sourceName, baseDamageInfo, extraDamageInfo);
-						disabled = false;
-					},
-					() => {
-						disabled = false;
-					},
-				);
+				await alternateAction(event, targets);
+				disabled = false;
 			} else {
-				handleDamageApplication(event, targets, sourceUuid, sourceName, baseDamageInfo, {});
+				await action(event, targets);
 				disabled = false;
 			}
 		}
 	};
 
-	jQuery.find(`a[data-action=applySingleDamage]`).click((event) => handleClick(event, Pipeline.getSingleTarget));
-	jQuery.find(`a[data-action=applySelectedDamage]`).click((event) => handleClick(event, getSelected));
-	jQuery.find(`a[data-action=applyTargetedDamage]`).click((event) => handleClick(event, getTargeted));
+	jQuery.find(`a[data-action=applySingleDamage]`).click((event) => handleClick(event, Pipeline.getSingleTarget), applyDefaultDamage, customizeDamage);
+	jQuery.find(`a[data-action=applySelectedDamage]`).click((event) => handleClick(event, getSelected), applyDefaultDamage, customizeDamage);
+	jQuery.find(`a[data-action=applyTargetedDamage]`).click((event) => handleClick(event, getTargeted), applyDefaultDamage, customizeDamage);
 
 	jQuery.find(`a[data-action=selectDamageCustomizer]`).click(async (event) => {
 		if (!disabled) {
