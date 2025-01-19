@@ -310,7 +310,7 @@ async function process(request) {
 
 // TODO: Move elsewhere
 /**
- * @param {?} message
+ * @param {Document} message
  * @param {jQuery} jQuery
  */
 function onRenderChatMessage(message, jQuery) {
@@ -342,33 +342,41 @@ function onRenderChatMessage(message, jQuery) {
 		}
 	}
 
-	const handleClick = async (event, getTargetsFunction) => {
+	const customizeDamage = async (event, targets) => {
+		DamageCustomizer(
+			baseDamageInfo,
+			targets,
+			async (extraDamageInfo) => {
+				await handleDamageApplication(event, targets, sourceUuid, sourceName, baseDamageInfo, extraDamageInfo);
+				disabled = false;
+			},
+			() => {
+				disabled = false;
+			},
+		);
+	};
+
+	const applyDefaultDamage = async (event, targets) => {
+		return handleDamageApplication(event, targets, sourceUuid, sourceName, baseDamageInfo, {});
+	};
+
+	const handleClick = async (event, getTargetsFunction, action, alternateAction) => {
 		event.preventDefault();
 		if (!disabled) {
 			disabled = true;
 			const targets = await getTargetsFunction(event);
 			if (event.ctrlKey || event.metaKey) {
-				DamageCustomizer(
-					baseDamageInfo,
-					targets,
-					(extraDamageInfo) => {
-						handleDamageApplication(event, targets, sourceUuid, sourceName, baseDamageInfo, extraDamageInfo);
-						disabled = false;
-					},
-					() => {
-						disabled = false;
-					},
-				);
+				await alternateAction(event, targets);
+				disabled = false;
 			} else {
-				handleDamageApplication(event, targets, sourceUuid, sourceName, baseDamageInfo, {});
+				await action(event, targets);
 				disabled = false;
 			}
 		}
 	};
 
-	jQuery.find(`a[data-action=applySingleDamage]`).click((event) => handleClick(event, Pipeline.getSingleTarget));
-	jQuery.find(`a[data-action=applySelectedDamage]`).click((event) => handleClick(event, getSelected));
-	jQuery.find(`a[data-action=applyTargetedDamage]`).click((event) => handleClick(event, getTargeted));
+	jQuery.find(`a[data-action=applyDamage]`).click((event) => handleClick(event, Pipeline.getSingleTarget, applyDefaultDamage, customizeDamage));
+	jQuery.find(`a[data-action=applyDamageSelected]`).click((event) => handleClick(event, getSelected, applyDefaultDamage, customizeDamage));
 
 	jQuery.find(`a[data-action=selectDamageCustomizer]`).click(async (event) => {
 		if (!disabled) {
@@ -388,24 +396,13 @@ function onRenderChatMessage(message, jQuery) {
 		}
 	});
 
-	const revertDamage = jQuery.find(`a[data-action=revertDamage]`);
-	revertDamage.click(async (event) => {
-		const amount = revertDamage.data(`amount`);
-		const uuid = revertDamage.data(`uuid`);
+	Pipeline.handleClickRevert(jQuery, 'revertDamage', async (dataset) => {
+		const uuid = dataset.uuid;
+		const amount = dataset.amount;
 		const target = fromUuidSync(uuid);
 		const updates = [];
 		const amountRecovered = Math.max(0, amount + (target.system.bonuses.incomingRecovery['hp'] || 0));
 		updates.push(target.modifyTokenAttribute('resources.hp', amountRecovered, true));
-
-		// Disable the revert
-		event.preventDefault();
-		revertDamage.addClass('disabled').css({
-			'pointer-events': 'none',
-			opacity: '0.5',
-		});
-		jQuery.addClass('strikethrough').css({
-			'text-decoration': 'line-through',
-		});
 
 		return Promise.all(updates);
 	});

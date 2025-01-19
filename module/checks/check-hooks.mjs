@@ -1,4 +1,5 @@
 import { SYSTEM } from '../helpers/config.mjs';
+import { Pipeline } from '../pipelines/pipeline.mjs';
 
 export const CheckHooks = Object.freeze({
 	prepareCheck: `${SYSTEM}.prepareCheck`,
@@ -106,12 +107,13 @@ const processCheck = (check, actor, item) => {};
 
 /**
  * @callback RenderCheckHook
- * Hook called to determine how to render the results
+ * @description Hook called to determine how to render the results
  * @param {CheckRenderData} sections
  * @param {CheckResultV2} check
  * @param {FUActor} actor
  * @param {FUItem} [item]
  * @param {Object} additionalFlags
+ * @param {TargetData[]} targets
  */
 
 /**
@@ -119,3 +121,71 @@ const processCheck = (check, actor, item) => {};
  */
 // eslint-disable-next-line no-unused-vars
 const renderCheck = (sections, check, actor, item, additionalFlags) => {};
+
+/**
+ * @description To be used within a {@link RenderCheckHook}
+ * @property {FUActor} actor
+ * @property {FUItem} item
+ * @property {Object} flags
+ * @property {TargetData[]} targets A snapshot of the targets at the beginning of the hook
+ * @property {TargetingDataModel} targeting
+ * @property {CheckSection} section
+ * @property {Boolean} executed
+ * @property {List<Promise<*>>} additions
+ */
+export class RenderCheckSectionBuilder {
+	constructor(data, actor, item, targets, flags, order, partial) {
+		this.data = data;
+		this.actor = actor;
+		this.item = item;
+		this.targets = targets;
+		this.flags = flags;
+		this.executed = false;
+		this.additions = [];
+		this.section = {
+			order: order,
+			partial: partial,
+			data: {
+				name: item.name,
+				actor: actor.uuid,
+				item: item.uuid,
+			},
+		};
+	}
+
+	toggleFlag(flag) {
+		Pipeline.toggleFlag(this.flags, flag);
+	}
+
+	/**
+	 * @param {Promise<Object, void>} onData
+	 * @remarks Supports asynchronous operation
+	 */
+	addData(onData) {
+		this.additions.push(onData(this.section.data));
+	}
+
+	/**
+	 * @description Pushes the section onto {@link CheckRenderData}
+	 */
+	push() {
+		if (this.executed === true) {
+			throw Error('Already executed.');
+		}
+		this.data.push(async () => {
+			await Promise.all(this.additions);
+			if (this.validate()) {
+				return this.section;
+			}
+			return {};
+		});
+		this.executed = true;
+	}
+
+	/**
+	 * @returns {boolean} Whether the section should be pushed
+	 */
+	validate() {
+		return true;
+	}
+}

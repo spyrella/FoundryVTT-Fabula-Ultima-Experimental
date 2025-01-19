@@ -11,8 +11,11 @@ import { CheckConfiguration } from '../../../checks/check-configuration.mjs';
 import { ChooseWeaponDialog } from '../skill/choose-weapon-dialog.mjs';
 import { CHECK_DETAILS } from '../../../checks/default-section-order.mjs';
 import { CommonSections } from '../../../checks/common-sections.mjs';
+import { ActionCostDataModel } from '../common/action-cost-data-model.mjs';
+import { TargetingDataModel } from '../common/targeting-data-model.mjs';
+import { Targeting } from '../../../helpers/targeting.mjs';
 
-Hooks.on(CheckHooks.renderCheck, (sections, check, actor, item) => {
+Hooks.on(CheckHooks.renderCheck, (sections, check, actor, item, flags) => {
 	if (check.type === 'accuracy' && item?.system instanceof MiscAbilityDataModel) {
 		const weapon = fromUuidSync(check.additionalData[ABILITY_USED_WEAPON]);
 		if (check.critical) {
@@ -26,6 +29,8 @@ Hooks.on(CheckHooks.renderCheck, (sections, check, actor, item) => {
 			},
 			order: CHECK_DETAILS,
 		}));
+		const targets = Targeting.getSerializedTargetData();
+		CommonSections.spendResource(sections, actor, item, targets, flags);
 	}
 
 	if (check.type === 'attribute' && check.additionalData[ABILITY_USED_WEAPON]) {
@@ -63,6 +68,8 @@ const ABILITY_USED_WEAPON = 'AbilityUsedWeapon';
  * @property {string} source.value
  * @property {boolean} isOffensive.value
  * @property {boolean} hasRoll.value
+ * @property {ActionCostDataModel} cost
+ * @property {TargetingDataModel} targeting
  */
 export class MiscAbilityDataModel extends foundry.abstract.TypeDataModel {
 	static {
@@ -109,6 +116,8 @@ export class MiscAbilityDataModel extends foundry.abstract.TypeDataModel {
 			rp: new EmbeddedDataField(ProgressDataModel, {}),
 			source: new SchemaField({ value: new StringField() }),
 			hasRoll: new SchemaField({ value: new BooleanField() }),
+			cost: new EmbeddedDataField(ActionCostDataModel, {}),
+			targeting: new EmbeddedDataField(TargetingDataModel, {}),
 		};
 	}
 
